@@ -2,10 +2,6 @@ name: CI - Node
 
 on:
   workflow_call:
-    inputs:
-      image:
-        required: true
-        type: string
     outputs:
       tag:
         value: ${{ jobs.ci.outputs.tag }}
@@ -31,16 +27,3 @@ jobs:
 
       - name: Build check
         run: npm run build
-
-      - name: Log in to ghcr.io
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push image
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: ${{ inputs.image }}:${{ github.sha }}
