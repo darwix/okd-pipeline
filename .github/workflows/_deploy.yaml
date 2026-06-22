@@ -16,6 +16,10 @@ on:
         required: false
         type: string
         default: ""
+      namespace:
+        required: false
+        type: string
+        default: "apps"
       helm_set_args:
         required: false
         type: string
@@ -58,11 +62,10 @@ jobs:
             git clone https://github.com/darwix/okd-pipeline.git /tmp/pipeline
 
             helm upgrade --install ${{ inputs.helm_release }} /tmp/pipeline/helm/service \
-              --namespace apps \
+              --namespace ${{ inputs.namespace }} \
               --create-namespace \
               --values /tmp/app-values/.helm-chart/values.yaml \
               --set service.name=${{ inputs.helm_release }} \
               --set service.image=${{ inputs.image }} \
               --set service.tag=${{ inputs.tag }} \
-              --set service.type=${{ inputs.service_type }} \
-              ${{ inputs.helm_set_args }}
+              --set service.type=${{ inputs.service_type }}${{ inputs.helm_set_args && format(' {0}', inputs.helm_set_args) || '' }}
