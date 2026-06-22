@@ -3,7 +3,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: {{ $.Values.service.name }}-{{ .name }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ $.Release.Namespace }}
 spec:
   schedule: {{ .schedule | quote }}
   jobTemplate:
