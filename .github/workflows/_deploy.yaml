@@ -65,7 +65,7 @@ jobs:
             rm -rf /tmp/pipeline
             git clone https://github.com/darwix/okd-pipeline.git /tmp/pipeline
 
-            helm upgrade --install ${{ inputs.helm_release }} /tmp/pipeline/helm/service \
+            helm upgrade --install ${{ inputs.helm_release }} /tmp/pipeline/helm/service --timeout 5m \
               --namespace ${{ inputs.namespace }} \
               --create-namespace \
               --values /tmp/app-values/.helm-chart/values.yaml \
