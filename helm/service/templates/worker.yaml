@@ -1,0 +1,29 @@
+{{- if .Values.worker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.service.name }}-worker
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.service.name }}-worker
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.service.name }}-worker
+    spec:
+      containers:
+        - name: {{ .Values.service.name }}-worker
+          image: "{{ .Values.service.image }}:{{ .Values.service.tag }}"
+          imagePullPolicy: {{ .Values.service.imagePullPolicy }}
+          args: {{ toJson .Values.worker.args }}
+          {{- if .Values.service.secret }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.service.secret }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+{{- end }}

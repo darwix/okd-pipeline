@@ -1,0 +1,27 @@
+{{- range .Values.cronjobs }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $.Values.service.name }}-{{ .name }}
+  namespace: apps
+spec:
+  schedule: {{ .schedule | quote }}
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: {{ $.Values.service.name }}-{{ .name }}
+              image: "{{ $.Values.service.image }}:{{ $.Values.service.tag }}"
+              imagePullPolicy: {{ $.Values.service.imagePullPolicy }}
+              args: {{ toJson .args }}
+              {{- if $.Values.service.secret }}
+              envFrom:
+                - secretRef:
+                    name: {{ $.Values.service.secret }}
+              {{- end }}
+              resources:
+                {{- toYaml .resources | nindent 16 }}
+---
+{{- end }}

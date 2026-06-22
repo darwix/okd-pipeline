@@ -34,6 +34,18 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy values to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          source: .helm-chart/values.yaml
+          target: /tmp/app-values/
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -42,12 +54,13 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
-            rm -rf /tmp/okd
-            git clone https://github.com/meongracun/okd.git /tmp/okd
+            rm -rf /tmp/pipeline
+            git clone https://github.com/darwix/okd-pipeline.git /tmp/pipeline
 
-            helm upgrade --install ${{ inputs.helm_release }} /tmp/okd/helm/service \
+            helm upgrade --install ${{ inputs.helm_release }} /tmp/pipeline/helm/service \
               --namespace apps \
               --create-namespace \
+              --values /tmp/app-values/.helm-chart/values.yaml \
               --set service.name=${{ inputs.helm_release }} \
               --set service.image=${{ inputs.image }} \
               --set service.tag=${{ inputs.tag }} \

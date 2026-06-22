@@ -1,0 +1,32 @@
+service:
+  name: ""
+  image: ""
+  tag: latest
+  imagePullPolicy: Always
+  port: 8080
+  secret: ""
+
+secrets: {}
+
+deployment:
+  replicas: 1
+  resources:
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+
+worker:
+  enabled: false
+  args: []
+  resources:
+    limits:
+      memory: "128Mi"
+      cpu: "200m"
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+
+cronjobs: []
