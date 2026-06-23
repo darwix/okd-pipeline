@@ -60,7 +60,7 @@ jobs:
           script: |
             git -C /tmp/pipeline pull || git clone https://github.com/darwix/okd-pipeline.git /tmp/pipeline
 
-            helm upgrade --install ${{ inputs.helm_release }} /tmp/pipeline/helm/service --timeout 5m \
+            helm upgrade --install ${{ inputs.helm_release }} /tmp/pipeline/helm/service --timeout 5m --debug \
               --namespace ${{ inputs.namespace }} \
               --create-namespace \
               --values /tmp/app-values/.helm-chart/values.yaml \
