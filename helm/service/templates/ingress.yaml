@@ -11,14 +11,8 @@ kind: Ingress
 metadata:
   name: {{ $name }}
   namespace: {{ .Release.Namespace }}
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt
 spec:
   ingressClassName: traefik
-  tls:
-    - hosts:
-        - {{ $host }}
-      secretName: {{ $name }}-tls
   rules:
     - host: {{ $host }}
       http:
