@@ -1,27 +1,33 @@
-{{- if or (eq .Values.service.type "api") (eq .Values.service.type "web") }}
-{{- $isApi := eq .Values.service.type "api" }}
-{{- $host := ternary (printf "api-apps.armstronger.com") (printf "%s-apps.armstronger.com" .Values.service.name) $isApi }}
+{{- if .Values.service.port }}
+{{- $name := .Values.service.name }}
+{{- $host := "" }}
+{{- if hasSuffix "-web" $name }}
+  {{- $host = printf "%s.armstronger.web.id" (trimSuffix "-web" $name) }}
+{{- else }}
+  {{- $host = printf "%s.armstronger.web.id" $name }}
+{{- end }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Values.service.name }}
+  name: {{ $name }}
   namespace: {{ .Release.Namespace }}
   annotations:
-    {{- if $isApi }}
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    {{- end }}
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
-  ingressClassName: nginx
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - {{ $host }}
+      secretName: {{ $name }}-tls
   rules:
     - host: {{ $host }}
       http:
         paths:
-          - path: {{ if $isApi }}/{{ .Values.service.name }}(/|$)(.*){{ else }}/{{ end }}
-            pathType: {{ if $isApi }}ImplementationSpecific{{ else }}Prefix{{ end }}
+          - path: /
+            pathType: Prefix
             backend:
               service:
-                name: {{ .Values.service.name }}
+                name: {{ $name }}
                 port:
                   number: {{ .Values.service.port }}
 {{- end }}
